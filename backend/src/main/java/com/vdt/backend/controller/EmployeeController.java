@@ -44,7 +44,7 @@ public class EmployeeController {
 
     @PostMapping("/sync/")
     public String syncEmployees(){
-        return employeeService.syncEmployees();
+        return employeeService.syncEmployees(employeeService.getAllEmpsUnpageable());
     }
 
 

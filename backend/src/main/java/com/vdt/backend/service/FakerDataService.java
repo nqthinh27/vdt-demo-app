@@ -46,7 +46,7 @@ public class FakerDataService {
             List<Employee> emps = employeeRepository.saveAll(dataList);
             message = "Add " + emps.size() + " employees successfully!";
             log.info(message);
-            String syncMgs = employeeService.syncEmployees();
+            String syncMgs = employeeService.syncEmployees(emps);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

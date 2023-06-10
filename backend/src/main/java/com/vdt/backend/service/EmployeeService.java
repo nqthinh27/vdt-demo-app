@@ -36,9 +36,8 @@ public class EmployeeService {
     }
 
 
-    public String syncEmployees() {
+    public String syncEmployees(List<Employee> employees) {
         String message = "Error synchronize data";
-        List<Employee> employees = employeeRepository.findAll();
         List<EmployeeDocument> employeeDocuments = employees.stream()
                 .map(Mapper::convertToEmployeeDocument)
                 .collect(Collectors.toList());
@@ -82,10 +81,12 @@ public class EmployeeService {
     }
 
     public List<EmployeeDocument> findByAddress(String keyword) {
+        log.info("Fuzzy search emp by address");
         return employeeRepositoryElasticsearch.findByAddress(keyword);
     }
 
     public Iterable<EmployeeDocument> getAllEmpEs() {
+        log.info("get all emp from elasticsearch");
         return employeeRepositoryElasticsearch.findAll();
     }
 
