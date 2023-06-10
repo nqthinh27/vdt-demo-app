@@ -14,14 +14,16 @@ import java.util.Random;
 
 @Service
 public class FakerDataService {
+    private final EmployeeService employeeService;
 
     private final Logger log = LoggerFactory.getLogger(EmployeeService.class);
     private final EmployeeRepository employeeRepository;
     private final MinIOService minIOService;
 
-    public FakerDataService(EmployeeRepository employeeRepository, MinIOService minIOService) {
+    public FakerDataService(EmployeeRepository employeeRepository, MinIOService minIOService, EmployeeService employeeService) {
         this.employeeRepository = employeeRepository;
         this.minIOService = minIOService;
+        this.employeeService = employeeService;
     }
 
     public String generateFakeDataList(int count) {
@@ -44,8 +46,9 @@ public class FakerDataService {
             List<Employee> emps = employeeRepository.saveAll(dataList);
             message = "Add " + emps.size() + " employees successfully!";
             log.info(message);
+            String syncMgs = employeeService.syncEmployees();
         } catch (Exception e) {
-            log.error(message);
+            log.error(e.getMessage());
         }
         return message;
     }
