@@ -1,6 +1,9 @@
 package com.vdt.backend.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vdt.backend.domain.Employee;
 import com.vdt.backend.domain.EmployeeDocument;
 import com.vdt.backend.repository.EmployeeRepository;
@@ -11,11 +14,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -53,7 +61,7 @@ public class EmployeeService {
 
     public Page<Employee> getAllEmps(Pageable pageable) {
         Page<Employee> emps = employeeRepository.findAll(pageable);
-        log.info("Get all employees");
+        log.info("Get all employees pagenable");
         return new PageImpl<>(emps.getContent(), pageable, emps.getTotalElements());
     }
 
@@ -76,12 +84,12 @@ public class EmployeeService {
 
     public List<Employee> getAllEmpsUnpageable() {
         List<Employee> emps = employeeRepository.findAll();
-        log.info("Get all employees");
+        log.info("Get all employees unpagenable");
         return emps;
     }
 
     public List<EmployeeDocument> findByAddress(String keyword) {
-        log.info("Fuzzy search emp by address");
+        log.info("Normal search emp by address: " + keyword);
         return employeeRepositoryElasticsearch.findByAddress(keyword);
     }
 
@@ -91,6 +99,30 @@ public class EmployeeService {
     }
 
     public List<EmployeeDocument> findByAddressFuzzy(String address) {
+        log.info("Fuzzy search address: " + address);
         return employeeRepositoryElasticsearch.findByAddressFuzzy(address);
     }
+
+    public Employee getEmployeeById(long id) {
+        Optional<Employee> emp = employeeRepository.findById(id);
+        if (emp.isPresent()) {
+            log.info("Get employee with id: " + id);
+            return emp.get();
+        }
+        else {
+            log.error("Not found employee with id: " + id);
+            return null;
+        }
+    }
+
+    public List<Employee> getEmpsByFirstName(String firstName) {
+        try {
+            log.info("Get employee with firstName: " + firstName);
+            return employeeRepository.findAllByFirstName(firstName);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
 }

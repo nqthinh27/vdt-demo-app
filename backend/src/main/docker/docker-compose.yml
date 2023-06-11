@@ -62,3 +62,11 @@ services:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     depends_on:
       - elasticsearch
+
+  redis:
+    image: redis:latest
+    container_name: redis_vdt
+    volumes:
+      - ./redis/data:/data
+    ports:
+      - 6379:6379
